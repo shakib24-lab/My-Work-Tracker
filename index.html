@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Assignment Tracker</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -71,11 +71,11 @@
   </main>
 
   <!-- Edit modal -->
-  <div class="modal-backdrop" id="modal" hidden>
+  <div class="modal-backdrop" id="modal">
     <div class="modal">
       <header class="modal-header">
         <h2 id="modal-title">New Assignment</h2>
-        <button class="icon-btn" id="modal-close" aria-label="Close">×</button>
+        <button type="button" class="icon-btn" id="modal-close" aria-label="Close">×</button>
       </header>
       <form id="modal-form" class="modal-body">
         <div class="field">
@@ -151,8 +151,8 @@
   </div>
 
   <!-- Toast -->
-  <div class="toast" id="toast" hidden></div>
+  <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
