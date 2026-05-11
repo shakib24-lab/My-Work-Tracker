@@ -3,16 +3,125 @@
    ============================================ */
 
 const STORAGE_KEY = 'assignment-tracker-v1';
-const MONTHS = [
-  { name: 'May 2026', m: 4, y: 2026, color: '#1F4E78' },
-  { name: 'Jun 2026', m: 5, y: 2026, color: '#2E75B6' },
-  { name: 'Jul 2026', m: 6, y: 2026, color: '#5B9BD5' },
-  { name: 'Aug 2026', m: 7, y: 2026, color: '#70AD47' },
-  { name: 'Sep 2026', m: 8, y: 2026, color: '#FFC000' },
-  { name: 'Oct 2026', m: 9, y: 2026, color: '#ED7D31' },
-  { name: 'Nov 2026', m: 10, y: 2026, color: '#C00000' },
-  { name: 'Dec 2026', m: 11, y: 2026, color: '#7030A0' },
+const RANGE_KEY = 'assignment-tracker-range-v1';
+
+// Palette for month tabs — cycles if range exceeds palette length
+const MONTH_COLORS = [
+  '#1F4E78', '#2E75B6', '#5B9BD5', '#70AD47',
+  '#FFC000', '#ED7D31', '#C00000', '#7030A0',
+  '#2E7D32', '#00838F', '#5E35B1', '#D81B60',
 ];
+
+// Default range: May 2026 → Dec 2026
+const DEFAULT_RANGE = {
+  startMonth: 4,   // 0-indexed: 4 = May
+  startYear: 2026,
+  endMonth: 11,    // 11 = Dec
+  endYear: 2026,
+};
+
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function loadRange() {
+  try {
+    const raw = localStorage.getItem(RANGE_KEY);
+    if (!raw) return { ...DEFAULT_RANGE };
+    return JSON.parse(raw);
+  } catch (e) {
+    return { ...DEFAULT_RANGE };
+  }
+}
+
+function saveRange() {
+  localStorage.setItem(RANGE_KEY, JSON.stringify(range));
+}
+
+let range = loadRange();
+
+// Build the MONTHS list from the current range
+function buildMonths() {
+  const list = [];
+  let m = range.startMonth;
+  let y = range.startYear;
+  let i = 0;
+  // Safety cap at 120 months (10 years) so we never loop forever
+  while (i < 120) {
+    list.push({
+      name: `${MONTH_NAMES[m]} ${y}`,
+      m,
+      y,
+      color: MONTH_COLORS[i % MONTH_COLORS.length],
+    });
+    if (m === range.endMonth && y === range.endYear) break;
+    m++;
+    if (m > 11) { m = 0; y++; }
+    i++;
+  }
+  return list;
+}
+
+let MONTHS = buildMonths();
+
+// Shift the start of the range one month backward
+function extendBackward() {
+  let m = range.startMonth - 1;
+  let y = range.startYear;
+  if (m < 0) { m = 11; y--; }
+  range.startMonth = m;
+  range.startYear = y;
+  saveRange();
+  MONTHS = buildMonths();
+}
+
+// Shift the end of the range one month forward
+function extendForward() {
+  let m = range.endMonth + 1;
+  let y = range.endYear;
+  if (m > 11) { m = 0; y++; }
+  range.endMonth = m;
+  range.endYear = y;
+  saveRange();
+  MONTHS = buildMonths();
+}
+
+// Remove the first month from the range (only if it has no assignments)
+function shrinkBackward() {
+  if (MONTHS.length <= 1) return { ok: false, reason: 'Cannot remove the last month' };
+  const first = MONTHS[0];
+  const hasData = assignments.some(a => {
+    const mo = monthOfDate(a.assignDate);
+    return mo && mo.name === first.name;
+  });
+  if (hasData) return { ok: false, reason: `${first.name} has assignments — delete them first` };
+  let m = range.startMonth + 1;
+  let y = range.startYear;
+  if (m > 11) { m = 0; y++; }
+  range.startMonth = m;
+  range.startYear = y;
+  saveRange();
+  MONTHS = buildMonths();
+  return { ok: true, removed: first.name };
+}
+
+// Remove the last month from the range (only if it has no assignments)
+function shrinkForward() {
+  if (MONTHS.length <= 1) return { ok: false, reason: 'Cannot remove the last month' };
+  const last = MONTHS[MONTHS.length - 1];
+  const hasData = assignments.some(a => {
+    const mo = monthOfDate(a.assignDate);
+    return mo && mo.name === last.name;
+  });
+  if (hasData) return { ok: false, reason: `${last.name} has assignments — delete them first` };
+  let m = range.endMonth - 1;
+  let y = range.endYear;
+  if (m < 0) { m = 11; y--; }
+  range.endMonth = m;
+  range.endYear = y;
+  saveRange();
+  MONTHS = buildMonths();
+  return { ok: true, removed: last.name };
+}
 
 // State
 let state = {
@@ -250,7 +359,7 @@ function renderOverview() {
     <header class="page-header">
       <div class="page-eyebrow"><span class="dot"></span> Workspace</div>
       <h1 class="page-title">Overview</h1>
-      <p class="page-subtitle">Your assignments and earnings across all eight months. Click any month below to drill in.</p>
+      <p class="page-subtitle">Your assignments and earnings across ${MONTHS.length === 1 ? 'one month' : `all ${MONTHS.length} months`}. Click any month below to drill in.</p>
     </header>
 
     <section class="kpi-grid">
@@ -319,7 +428,7 @@ function renderOverview() {
       </tbody>
       <tfoot>
         <tr>
-          <td>TOTAL (8 MONTHS)</td>
+          <td>TOTAL (${MONTHS.length} ${MONTHS.length === 1 ? 'MONTH' : 'MONTHS'})</td>
           <td class="num">${stats.total}</td>
           <td class="num">${stats.completed}</td>
           <td class="num">${stats.total - stats.completed}</td>
@@ -730,6 +839,39 @@ modalDelete.addEventListener('click', () => {
 // Nav wiring
 // ============================================
 
+function renderMonthNav() {
+  const container = document.getElementById('month-nav');
+  if (!container) return;
+  container.innerHTML = MONTHS.map(m => `
+    <button class="nav-item" data-view="month" data-month="${m.name}">
+      <span class="nav-dot" style="--c:${m.color}"></span>${m.name}
+    </button>
+  `).join('');
+
+  // Update sidebar subtitle to reflect current range
+  const sub = document.getElementById('sidebar-sub');
+  if (sub) {
+    if (MONTHS.length === 1) {
+      sub.textContent = `Assignments · ${MONTHS[0].name}`;
+    } else {
+      sub.textContent = `Assignments · ${MONTHS[0].name} – ${MONTHS[MONTHS.length - 1].name}`;
+    }
+  }
+
+  // Wire up clicks
+  container.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.view = 'month';
+      state.month = btn.dataset.month;
+      state.search = '';
+      state.filterStatus = '';
+      state.filterPriority = '';
+      render();
+    });
+  });
+}
+
+// Wire static nav (Overview, All Assignments)
 document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
   btn.addEventListener('click', () => {
     state.view = btn.dataset.view;
@@ -739,6 +881,52 @@ document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
     state.filterPriority = '';
     render();
   });
+});
+
+// Month range buttons
+document.getElementById('btn-add-back').addEventListener('click', () => {
+  extendBackward();
+  renderMonthNav();
+  toast(`Added ${MONTHS[0].name}`);
+  render();
+});
+
+document.getElementById('btn-add-forward').addEventListener('click', () => {
+  extendForward();
+  renderMonthNav();
+  toast(`Added ${MONTHS[MONTHS.length - 1].name}`);
+  render();
+});
+
+document.getElementById('btn-shrink-back').addEventListener('click', () => {
+  const result = shrinkBackward();
+  if (result.ok) {
+    // If user was viewing the removed month, jump back to Overview
+    if (state.view === 'month' && state.month === result.removed) {
+      state.view = 'overview';
+      state.month = null;
+    }
+    renderMonthNav();
+    toast(`Removed ${result.removed}`);
+    render();
+  } else {
+    toast(result.reason);
+  }
+});
+
+document.getElementById('btn-shrink-forward').addEventListener('click', () => {
+  const result = shrinkForward();
+  if (result.ok) {
+    if (state.view === 'month' && state.month === result.removed) {
+      state.view = 'overview';
+      state.month = null;
+    }
+    renderMonthNav();
+    toast(`Removed ${result.removed}`);
+    render();
+  } else {
+    toast(result.reason);
+  }
 });
 
 // ============================================
@@ -844,4 +1032,5 @@ document.getElementById('btn-clear').addEventListener('click', () => {
 // Init
 // ============================================
 
+renderMonthNav();
 render();
