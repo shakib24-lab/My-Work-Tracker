@@ -143,6 +143,67 @@ body {
   padding: 6px 8px 4px;
 }
 
+.nav-label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.nav-label-row .nav-label {
+  flex: 1;
+  padding-right: 0;
+}
+
+.mini-btn {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 4px;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: all 0.12s ease;
+}
+
+.mini-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.month-range-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 0 4px;
+}
+
+.tiny-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-mute);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: all 0.12s ease;
+}
+
+.tiny-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-soft);
+}
+
 .nav-item {
   display: flex;
   align-items: center;
