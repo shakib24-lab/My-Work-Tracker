@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assignment Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-mark">◆</span>
+        <span class="logo-text">Tracker</span>
+      </div>
+      <p class="sidebar-sub">Assignments · May–Dec 2026</p>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">
+        <p class="nav-label">Workspace</p>
+        <button class="nav-item active" data-view="overview">
+          <span class="nav-icon">📊</span>
+          <span>Overview</span>
+        </button>
+        <button class="nav-item" data-view="all">
+          <span class="nav-icon">📝</span>
+          <span>All Assignments</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <p class="nav-label">Months</p>
+        <button class="nav-item" data-view="month" data-month="May 2026"><span class="nav-dot" style="--c:#1F4E78"></span>May 2026</button>
+        <button class="nav-item" data-view="month" data-month="Jun 2026"><span class="nav-dot" style="--c:#2E75B6"></span>Jun 2026</button>
+        <button class="nav-item" data-view="month" data-month="Jul 2026"><span class="nav-dot" style="--c:#5B9BD5"></span>Jul 2026</button>
+        <button class="nav-item" data-view="month" data-month="Aug 2026"><span class="nav-dot" style="--c:#70AD47"></span>Aug 2026</button>
+        <button class="nav-item" data-view="month" data-month="Sep 2026"><span class="nav-dot" style="--c:#FFC000"></span>Sep 2026</button>
+        <button class="nav-item" data-view="month" data-month="Oct 2026"><span class="nav-dot" style="--c:#ED7D31"></span>Oct 2026</button>
+        <button class="nav-item" data-view="month" data-month="Nov 2026"><span class="nav-dot" style="--c:#C00000"></span>Nov 2026</button>
+        <button class="nav-item" data-view="month" data-month="Dec 2026"><span class="nav-dot" style="--c:#7030A0"></span>Dec 2026</button>
+      </div>
+
+      <div class="nav-section">
+        <p class="nav-label">Data</p>
+        <button class="nav-item small" id="btn-export">
+          <span class="nav-icon">↓</span><span>Export CSV</span>
+        </button>
+        <button class="nav-item small" id="btn-import">
+          <span class="nav-icon">↑</span><span>Import CSV</span>
+        </button>
+        <input type="file" id="file-input" accept=".csv" hidden />
+        <button class="nav-item small danger" id="btn-clear">
+          <span class="nav-icon">⌫</span><span>Clear All Data</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>Data stored in this browser.<br/>Use Export to back up.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- Content rendered by JS into here -->
+    <div id="view"></div>
+  </main>
+
+  <!-- Edit modal -->
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal">
+      <header class="modal-header">
+        <h2 id="modal-title">New Assignment</h2>
+        <button class="icon-btn" id="modal-close" aria-label="Close">×</button>
+      </header>
+      <form id="modal-form" class="modal-body">
+        <div class="field">
+          <label for="f-title">Assignment Title</label>
+          <input type="text" id="f-title" required placeholder="e.g. Database Design Project" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="f-assign">Assign Date</label>
+            <input type="date" id="f-assign" required />
+          </div>
+          <div class="field">
+            <label for="f-submit">Submission Date</label>
+            <input type="date" id="f-submit" required />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="f-priority">Priority</label>
+            <select id="f-priority">
+              <option value="">—</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-price">Price (৳)</label>
+            <input type="number" id="f-price" step="0.01" min="0" placeholder="0.00" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="f-status">Status</label>
+            <select id="f-status">
+              <option value="Due">Due</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Revision">Revision</option>
+              <option value="Complete">Complete</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-payment">Payment</label>
+            <select id="f-payment">
+              <option value="Due">Due</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-paid-date">Payment Received Date <span class="hint">(optional)</span></label>
+          <input type="date" id="f-paid-date" />
+        </div>
+
+        <div class="field">
+          <label for="f-notes">Notes <span class="hint">(optional)</span></label>
+          <textarea id="f-notes" rows="3" placeholder="Any context, client info, revision notes…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn ghost" id="modal-delete" hidden>Delete</button>
+          <div class="actions-right">
+            <button type="button" class="btn ghost" id="modal-cancel">Cancel</button>
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
