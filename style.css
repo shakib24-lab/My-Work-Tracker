@@ -649,17 +649,16 @@ body {
   inset: 0;
   background: rgba(15, 15, 15, 0.4);
   backdrop-filter: blur(2px);
-  display: flex;
+  display: none;
   align-items: flex-start;
   justify-content: center;
   padding: 80px 20px;
   z-index: 50;
-  animation: fadeIn 0.18s ease;
 }
 
-/* The HTML `hidden` attribute must win over display:flex above */
-.modal-backdrop[hidden] {
-  display: none !important;
+.modal-backdrop.is-open {
+  display: flex;
+  animation: fadeIn 0.18s ease;
 }
 
 .modal {
@@ -781,11 +780,12 @@ body {
   font-weight: 500;
   box-shadow: var(--shadow-lg);
   z-index: 60;
-  animation: toastIn 0.25s ease, toastOut 0.25s 2.2s ease forwards;
+  display: none;
 }
 
-.toast[hidden] {
-  display: none !important;
+.toast.is-open {
+  display: block;
+  animation: toastIn 0.25s ease, toastOut 0.25s 2.2s ease forwards;
 }
 
 /* ============================================
