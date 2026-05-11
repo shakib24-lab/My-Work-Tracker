@@ -131,12 +131,12 @@ function escape(s) {
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.hidden = false;
+  el.classList.remove('is-open');
   // Force reflow to restart animation
-  el.style.animation = 'none';
-  el.offsetHeight;
-  el.style.animation = '';
-  setTimeout(() => { el.hidden = true; }, 2500);
+  void el.offsetWidth;
+  el.classList.add('is-open');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { el.classList.remove('is-open'); }, 2500);
 }
 
 // ============================================
@@ -654,12 +654,12 @@ function openModal(id = null) {
   document.getElementById('f-paid-date').value = a?.paymentReceivedDate || '';
   document.getElementById('f-notes').value = a?.notes || '';
 
-  modal.hidden = false;
+  modal.classList.add('is-open');
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
 
 function closeModal() {
-  modal.hidden = true;
+  modal.classList.remove('is-open');
   state.editingId = null;
 }
 
@@ -670,7 +670,7 @@ modal.addEventListener('click', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !modal.hidden) closeModal();
+  if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
 });
 
 modalForm.addEventListener('submit', (e) => {
