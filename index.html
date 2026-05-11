@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Assignment Tracker</title>
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="stylesheet" href="style.css?v=3" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
         <span class="logo-mark">◆</span>
         <span class="logo-text">Tracker</span>
       </div>
-      <p class="sidebar-sub">Assignments · May–Dec 2026</p>
+      <p class="sidebar-sub" id="sidebar-sub">Loading…</p>
     </div>
 
     <nav class="nav">
@@ -34,15 +34,16 @@
       </div>
 
       <div class="nav-section">
-        <p class="nav-label">Months</p>
-        <button class="nav-item" data-view="month" data-month="May 2026"><span class="nav-dot" style="--c:#1F4E78"></span>May 2026</button>
-        <button class="nav-item" data-view="month" data-month="Jun 2026"><span class="nav-dot" style="--c:#2E75B6"></span>Jun 2026</button>
-        <button class="nav-item" data-view="month" data-month="Jul 2026"><span class="nav-dot" style="--c:#5B9BD5"></span>Jul 2026</button>
-        <button class="nav-item" data-view="month" data-month="Aug 2026"><span class="nav-dot" style="--c:#70AD47"></span>Aug 2026</button>
-        <button class="nav-item" data-view="month" data-month="Sep 2026"><span class="nav-dot" style="--c:#FFC000"></span>Sep 2026</button>
-        <button class="nav-item" data-view="month" data-month="Oct 2026"><span class="nav-dot" style="--c:#ED7D31"></span>Oct 2026</button>
-        <button class="nav-item" data-view="month" data-month="Nov 2026"><span class="nav-dot" style="--c:#C00000"></span>Nov 2026</button>
-        <button class="nav-item" data-view="month" data-month="Dec 2026"><span class="nav-dot" style="--c:#7030A0"></span>Dec 2026</button>
+        <div class="nav-label-row">
+          <p class="nav-label">Months</p>
+          <button class="mini-btn" id="btn-add-back" title="Add month before earliest">−</button>
+          <button class="mini-btn" id="btn-add-forward" title="Add month after latest">+</button>
+        </div>
+        <div id="month-nav"></div>
+        <div class="month-range-actions">
+          <button class="tiny-btn" id="btn-shrink-back" title="Remove earliest month (if empty)">◀ Remove first</button>
+          <button class="tiny-btn" id="btn-shrink-forward" title="Remove latest month (if empty)">Remove last ▶</button>
+        </div>
       </div>
 
       <div class="nav-section">
@@ -153,6 +154,6 @@
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
