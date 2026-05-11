@@ -657,6 +657,11 @@ body {
   animation: fadeIn 0.18s ease;
 }
 
+/* The HTML `hidden` attribute must win over display:flex above */
+.modal-backdrop[hidden] {
+  display: none !important;
+}
+
 .modal {
   width: 100%;
   max-width: 560px;
@@ -777,6 +782,10 @@ body {
   box-shadow: var(--shadow-lg);
   z-index: 60;
   animation: toastIn 0.25s ease, toastOut 0.25s 2.2s ease forwards;
+}
+
+.toast[hidden] {
+  display: none !important;
 }
 
 /* ============================================
